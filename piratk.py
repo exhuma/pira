@@ -117,6 +117,9 @@ class PiraTK(object):
         master.bind("<F11>", self.toggle_fullscreen)
         master.bind("<Escape>", self.end_fullscreen)
 
+        player.add_status_changed_handler(self._update_info)
+        player.add_song_changed_handler(self._update_info)
+
     def _update_info(self):
         LOG.debug('updating info')
         title = self.player.title()
@@ -124,19 +127,15 @@ class PiraTK(object):
 
     def _play(self):
         self.player.play()
-        self._update_info()
 
     def _stop(self):
         self.player.stop()
-        self._update_info()
 
     def _next(self):
         self.player.next_()
-        self._update_info()
 
     def _previous(self):
         self.player.previous()
-        self._update_info()
 
     def toggle_fullscreen(self, event=None):
         self.is_fullscreen = not self.is_fullscreen
