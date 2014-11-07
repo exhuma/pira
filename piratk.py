@@ -97,15 +97,15 @@ class PiraTK(object):
 
         self.bottomctrls = ttk.Frame(master)
         stopbtn = ttk.Button(self.bottomctrls, text="Stop",
-                             command=self._stop)
+                             command=player.stop)
         playbtn = ttk.Button(self.bottomctrls, text="Play",
-                             command=self._play)
+                             command=player.play)
         stopbtn.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         playbtn.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)
         self.bottomctrls.pack(side=tk.BOTTOM)
 
-        prevbtn = ttk.Button(self.frame, text="<", command=self._previous)
-        nextbtn = ttk.Button(self.frame, text=">", command=self._next)
+        prevbtn = ttk.Button(self.frame, text="<", command=player.previous)
+        nextbtn = ttk.Button(self.frame, text=">", command=player.next_)
         plist = ttk.Treeview(self.frame)
 
         prevbtn.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
@@ -124,18 +124,6 @@ class PiraTK(object):
         LOG.debug('updating info')
         title = self.player.title()
         LOG.debug('Setting info to {}'.format(title))
-
-    def _play(self):
-        self.player.play()
-
-    def _stop(self):
-        self.player.stop()
-
-    def _next(self):
-        self.player.next_()
-
-    def _previous(self):
-        self.player.previous()
 
     def toggle_fullscreen(self, event=None):
         self.is_fullscreen = not self.is_fullscreen
