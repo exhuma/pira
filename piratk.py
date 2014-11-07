@@ -19,10 +19,65 @@ def cleanup(client):
     return disconnect
 
 
-class FullscreenApp2(object):
+class BackendPlayer(object):
 
-    def __init__(self, master):
+    def __init__(self, mpd_client):
+        self.client = mpd_client
+        self._handlers = {
+            'song_changed': set(),
+            'status_changed': set(),
+        }
+
+    def _song_changed(self):
+        for handler in self._handlers['song_changed']:
+            handler()
+
+    def _status_changed(self):
+        for handler in self._handlers['status_changed']:
+            handler()
+
+    def init(self):
+        self.client.repeat(1)
+        self.client.play()
+
+    def add_song_changed_handler(self, fun):
+        self._handlers['song_changed'].add(fun)
+
+    def add_status_changed_handler(self, fun):
+        self._handlers['status_changed'].add(fun)
+
+    def previous(self):
+        LOG.info('Sending previous command')
+        self.client.previous()
+        self._song_changed()
+
+    def next_(self):
+        LOG.info('Sending next command')
+        self.client.next()
+        self._song_changed()
+
+    def play(self):
+        LOG.info('Sending play command')
+        self.client.play()
+        self._song_changed()
+
+    def stop(self):
+        LOG.info('Sending stop command')
+        self.client.stop()
+        self._status_changed()
+
+    def title(self):
+        info = self.client.currentsong()
+        name = info.get('name', '?')
+        title = info.get('title', '?')
+        return ' - '.join([name, title])
+
+
+class PiraTK(object):
+
+    def __init__(self, master, player):
         self._master = master
+        self.player = player
         master.attributes('-zoomed', True)
 
         style = ttk.Style()
@@ -62,37 +117,25 @@ class FullscreenApp2(object):
         master.bind("<F11>", self.toggle_fullscreen)
         master.bind("<Escape>", self.end_fullscreen)
 
-        self.client = musicpd.MPDClient()
-        self.client.connect('localhost', 6600)
-        self.client.repeat(1)
-        self.client.play()
-        atexit.register(cleanup(self.client))
-
     def _update_info(self):
         LOG.debug('updating info')
-        info = self.client.currentsong()
-        name = info.get('name', '?')
-        title = info.get('title', '?')
-        LOG.debug('Setting info to {} - {}'.format(name, title))
+        title = self.player.title()
+        LOG.debug('Setting info to {}'.format(title))
 
     def _play(self):
-        LOG.info('Sending play command')
-        self.client.play()
+        self.player.play()
         self._update_info()
 
     def _stop(self):
-        LOG.info('Sending stop command')
-        self.client.stop()
+        self.player.stop()
         self._update_info()
 
     def _next(self):
-        LOG.info('Sending next command')
-        self.client.next()
+        self.player.next_()
         self._update_info()
 
     def _previous(self):
-        LOG.info('Sending previous command')
-        self.client.previous()
+        self.player.previous()
         self._update_info()
 
     def toggle_fullscreen(self, event=None):
@@ -106,7 +149,22 @@ class FullscreenApp2(object):
         return "break"
 
 
-logging.basicConfig(level=logging.DEBUG)
-root = tk.Tk()
-app = FullscreenApp2(root)
-root.mainloop()
+def main():
+    logging.basicConfig(level=logging.DEBUG)
+
+    # MPD setup
+    mpd = musicpd.MPDClient()
+    mpd.connect('localhost', 6600)
+    atexit.register(cleanup(mpd))
+
+    # Backend Player
+    player = BackendPlayer(mpd)
+
+    # Tk
+    root = tk.Tk()
+    PiraTK(root, player)
+    root.mainloop()
+
+
+if __name__ == '__main__':
+    main()
