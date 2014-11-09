@@ -1,0 +1,1 @@
+python-musicpd==0.4.1
