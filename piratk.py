@@ -85,7 +85,6 @@ class PiraTK(object):
     def __init__(self, master, player):
         self._master = master
         self._player = player
-        master.attributes('-zoomed', True)
 
         style = ttk.Style()
         style.configure("TLabel",
@@ -183,6 +182,7 @@ def main():
     # Tk
     root = tk.Tk()
     root.config(cursor="none")
+    root.attributes('-zoomed', True)
     app = PiraTK(root, player)
     app.toggle_fullscreen()
     root.mainloop()
