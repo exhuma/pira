@@ -1,5 +1,6 @@
-import logging
 import atexit
+import logging
+import socket
 import tkinter as tk
 import tkinter.ttk as ttk
 
@@ -7,6 +8,12 @@ import musicpd
 
 
 LOG = logging.getLogger(__name__)
+
+
+def update_local_ips(strvar):
+    data = socket.getaddrinfo(socket.gethostname(), None, family=socket.AF_INET)
+    first = data[0]
+    strvar.set('IP: ' + first[4][0])
 
 
 def cleanup(client):
@@ -84,22 +91,26 @@ class PiraTK(object):
         style.configure("TLabel",
                         foreground="green",
                         background='#000022',
+                        font="Symbol 24",
                         relief="flat")
         style.configure("TButton",
                         foreground="green",
                         background='#000022',
+                        font="Symbol 24",
                         relief="flat")
         style.map("TButton",
                   background=[('pressed', '#000055'),
                               ('active', '#000033')])
         style.configure("TFrame", background="#000022")
 
-        # TODO use a Tk variable instead of accessing the label
+        self._status_text = tk.StringVar()
+        update_local_ips(self._status_text)
         self._song_label = tk.StringVar()
         self._song_label.set('piratk')
         self._setup_header()
-        self._setup_bottom_controls()
         self._setup_main_controls()
+        self._setup_bottom_controls()
+        self._setup_footer()
 
         self.is_fullscreen = False
         master.bind("<F11>", self.toggle_fullscreen)
@@ -111,6 +122,13 @@ class PiraTK(object):
     def _setup_header(self):
         frame = ttk.Frame(self._master)
         label = ttk.Label(frame, textvariable=self._song_label)
+        label.pack(side=tk.LEFT, fill=tk.X)
+        frame.pack(fill=tk.X)
+        return label
+
+    def _setup_footer(self):
+        frame = ttk.Frame(self._master)
+        label = ttk.Label(frame, textvariable=self._status_text)
         label.pack(side=tk.LEFT, fill=tk.X)
         frame.pack(fill=tk.X)
         return label
@@ -164,7 +182,8 @@ def main():
 
     # Tk
     root = tk.Tk()
-    PiraTK(root, player)
+    app = PiraTK(root, player)
+    app.toggle_fullscreen()
     root.mainloop()
 
 
