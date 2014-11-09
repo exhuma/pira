@@ -46,6 +46,7 @@ class BackendPlayer(object):
     def init(self):
         self.client.repeat(1)
         self.client.play()
+        self._song_changed()
 
     def add_song_changed_handler(self, fun):
         self._handlers['song_changed'].add(fun)
@@ -185,6 +186,9 @@ def main():
     root.attributes('-zoomed', True)
     app = PiraTK(root, player)
     app.toggle_fullscreen()
+
+    # Begin playing
+    player.init()
     root.mainloop()
 
 
