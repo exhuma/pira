@@ -182,6 +182,7 @@ def main():
 
     # Tk
     root = tk.Tk()
+    root.config(cursor="none")
     app = PiraTK(root, player)
     app.toggle_fullscreen()
     root.mainloop()
