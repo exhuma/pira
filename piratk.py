@@ -46,6 +46,7 @@ class BackendPlayer(object):
     def init(self):
         self.client.repeat(1)
         self.client.play()
+        self._song_changed()
 
     def add_song_changed_handler(self, fun):
         self._handlers['song_changed'].add(fun)
@@ -85,19 +86,24 @@ class PiraTK(object):
     def __init__(self, master, player):
         self._master = master
         self._player = player
-        master.attributes('-zoomed', True)
 
         style = ttk.Style()
+        style.configure("Small.TLabel",
+                        foreground="yellow",
+                        background='#000022',
+                        font="Symbol 10",
+                        relief="flat")
         style.configure("TLabel",
                         foreground="green",
                         background='#000022',
-                        font="Symbol 24",
+                        font="Symbol 12",
+                        padding=5,
                         relief="flat")
         style.configure("TButton",
                         foreground="green",
                         background='#000022',
                         font="Symbol 24",
-                        relief="flat")
+                        relief="raised")
         style.map("TButton",
                   background=[('pressed', '#000055'),
                               ('active', '#000033')])
@@ -128,15 +134,21 @@ class PiraTK(object):
 
     def _setup_footer(self):
         frame = ttk.Frame(self._master)
-        label = ttk.Label(frame, textvariable=self._status_text)
+        label = ttk.Label(frame,
+                          textvariable=self._status_text,
+                          justify=tk.CENTER,
+                          padding=10,
+                          style="Small.TLabel")
         label.pack(side=tk.LEFT, fill=tk.X)
         frame.pack(fill=tk.X)
         return label
 
     def _setup_main_controls(self):
         frame = ttk.Frame(self._master)
-        prevbtn = ttk.Button(frame, text="<", command=self._player.previous)
-        nextbtn = ttk.Button(frame, text=">", command=self._player.next_)
+        prevbtn = ttk.Button(frame, text="<",
+                             command=self._player.previous)
+        nextbtn = ttk.Button(frame, text=">",
+                             command=self._player.next_)
         prevbtn.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         nextbtn.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)
         frame.pack(fill=tk.BOTH, expand=True)
@@ -182,8 +194,14 @@ def main():
 
     # Tk
     root = tk.Tk()
+    root.config(cursor="none")
+    root.attributes('-zoomed', True)
+    root.geometry('{}x{}'.format(320, 240))
     app = PiraTK(root, player)
     app.toggle_fullscreen()
+
+    # Begin playing
+    player.init()
     root.mainloop()
 
 
