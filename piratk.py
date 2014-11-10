@@ -196,6 +196,7 @@ def main():
     root = tk.Tk()
     root.config(cursor="none")
     root.attributes('-zoomed', True)
+    root.geometry('{}x{}'.format(320, 240))
     app = PiraTK(root, player)
     app.toggle_fullscreen()
 
