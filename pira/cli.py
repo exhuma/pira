@@ -1,5 +1,6 @@
-import logging
+import argparse
 import atexit
+import logging
 import tkinter as tk
 
 from pira.core_ui import TkWindow
@@ -20,7 +21,17 @@ def cleanup(client):
     return disconnect
 
 
+def parse_args():
+    parser = argparse.ArgumentParser(description='PI Radio')
+    parser.add_argument('--fs', action='store_true',
+                        help='Run in full-screen.', default=False)
+    args = parser.parse_args()
+    return args
+
+
 def main():
+    args = parse_args()
+
     logging.basicConfig(level=logging.DEBUG)
 
     # MPD setup
@@ -33,11 +44,16 @@ def main():
 
     # Tk
     root = tk.Tk()
-    root.config(cursor="none")
-    root.attributes('-zoomed', True)
-    root.geometry('{}x{}'.format(320, 240))
+    if args.fs:
+        root.config(cursor="none")
+        root.attributes('-zoomed', True)
+    else:
+        root.geometry('{}x{}'.format(320, 240))
+
     app = TkWindow(root, player)
-    app.toggle_fullscreen()
+
+    if args.fs:
+        app.toggle_fullscreen()
 
     # Begin playing
     player.init()
