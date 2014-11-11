@@ -110,3 +110,26 @@ class TkWindow(object):
         self.is_fullscreen = False
         self._master.attributes("-fullscreen", False)
         return "break"
+
+
+class App(object):
+
+    def __init__(self, player, fs):
+        self._fs = fs
+        self._player = player
+
+        # Tk
+        self._root = tk.Tk()
+        if fs:
+            self._root.config(cursor="none")
+            self._root.attributes('-zoomed', True)
+        else:
+            self._root.geometry('{}x{}'.format(320, 240))
+
+        window = TkWindow(self._root, player)
+
+        if fs:
+            window.toggle_fullscreen()
+
+    def run(self):
+        self._root.mainloop()

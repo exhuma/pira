@@ -1,9 +1,8 @@
 import argparse
 import atexit
 import logging
-import tkinter as tk
 
-from pira.core_ui import TkWindow
+from pira.core_ui import App
 from pira.player import MpdPlayer
 
 import musicpd
@@ -47,19 +46,9 @@ def main():
     # Backend Player
     player = MpdPlayer(mpd)
 
-    # Tk
-    root = tk.Tk()
-    if args.fs:
-        root.config(cursor="none")
-        root.attributes('-zoomed', True)
-    else:
-        root.geometry('{}x{}'.format(320, 240))
-
-    app = TkWindow(root, player)
-
-    if args.fs:
-        app.toggle_fullscreen()
+    app = App(player, args.fs)
 
     # Begin playing
     player.init()
-    root.mainloop()
+
+    app.run()
