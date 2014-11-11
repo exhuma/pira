@@ -23,6 +23,8 @@ def cleanup(client):
 
 def parse_args():
     parser = argparse.ArgumentParser(description='PI Radio')
+    parser.add_argument('--verbose', action='store_true',
+                        help='Be verbse', default=False)
     parser.add_argument('--fs', action='store_true',
                         help='Run in full-screen.', default=False)
     args = parser.parse_args()
@@ -32,7 +34,10 @@ def parse_args():
 def main():
     args = parse_args()
 
-    logging.basicConfig(level=logging.DEBUG)
+    if args.verbose:
+        logging.basicConfig(level=logging.DEBUG)
+    else:
+        logging.basicConfig(level=logging.WARNING)
 
     # MPD setup
     mpd = musicpd.MPDClient()
