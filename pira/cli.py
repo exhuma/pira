@@ -2,7 +2,8 @@ import logging
 import atexit
 import tkinter as tk
 
-from pira.piratk import BackendPlayer, PiraTK
+from pira.core_ui import TkWindow
+from pira.player import MpdPlayer
 
 import musicpd
 
@@ -28,14 +29,14 @@ def main():
     atexit.register(cleanup(mpd))
 
     # Backend Player
-    player = BackendPlayer(mpd)
+    player = MpdPlayer(mpd)
 
     # Tk
     root = tk.Tk()
     root.config(cursor="none")
     root.attributes('-zoomed', True)
     root.geometry('{}x{}'.format(320, 240))
-    app = PiraTK(root, player)
+    app = TkWindow(root, player)
     app.toggle_fullscreen()
 
     # Begin playing
