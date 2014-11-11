@@ -1,10 +1,7 @@
-import atexit
 import logging
 import socket
 import tkinter as tk
 import tkinter.ttk as ttk
-
-import musicpd
 
 
 LOG = logging.getLogger(__name__)
@@ -14,16 +11,6 @@ def update_local_ips(strvar):
     data = socket.getaddrinfo(socket.gethostname(), None, family=socket.AF_INET)
     first = data[0]
     strvar.set('IP: ' + first[4][0])
-
-
-def cleanup(client):
-
-    def disconnect():
-        LOG.debug('Disconnecting from %s', client)
-        client.close()
-        client.disconnect()
-
-    return disconnect
 
 
 class BackendPlayer(object):
@@ -179,31 +166,3 @@ class PiraTK(object):
         self.is_fullscreen = False
         self._master.attributes("-fullscreen", False)
         return "break"
-
-
-def main():
-    logging.basicConfig(level=logging.DEBUG)
-
-    # MPD setup
-    mpd = musicpd.MPDClient()
-    mpd.connect('localhost', 6600)
-    atexit.register(cleanup(mpd))
-
-    # Backend Player
-    player = BackendPlayer(mpd)
-
-    # Tk
-    root = tk.Tk()
-    root.config(cursor="none")
-    root.attributes('-zoomed', True)
-    root.geometry('{}x{}'.format(320, 240))
-    app = PiraTK(root, player)
-    app.toggle_fullscreen()
-
-    # Begin playing
-    player.init()
-    root.mainloop()
-
-
-if __name__ == '__main__':
-    main()
